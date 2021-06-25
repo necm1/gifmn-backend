@@ -12,5 +12,10 @@ export const environment = {
     user: 'root',
     password: 'root',
     name: 'test'
+  },
+
+  auth: {
+    secret: '1337',
+    expireIn: '6h'
   }
 };

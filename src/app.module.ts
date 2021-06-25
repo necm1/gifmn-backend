@@ -15,6 +15,10 @@ import * as path from 'path';
       password: environment.database.password,
       database: environment.database.name,
       entities: [path.join(__dirname, '**/**.entity{.ts,.js}')],
+      migrations: [path.join(__dirname, '**/**.migration{.ts,.js}')],
+      cli: {
+        migrationsDir: 'migration'
+      },
       keepConnectionAlive: true,
       logging: !environment.production,
       synchronize: false

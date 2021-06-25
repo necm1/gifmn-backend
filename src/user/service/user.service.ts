@@ -20,8 +20,15 @@ export class UserService {
     return this.usersRepository.find();
   }
 
-  findOne(id: string): Promise<User> {
-    return this.usersRepository.findOne(id);
+  /**
+   * Find One
+   *
+   * @todo dont forget to add {cache: true} in options
+   * @param username
+   * @returns Promise<User>
+   */
+  async findOne(username: string): Promise<User> {
+    return this.usersRepository.findOne({where: {username}});
   }
 
   async remove(id: string): Promise<void> {
