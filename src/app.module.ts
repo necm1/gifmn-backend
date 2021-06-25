@@ -8,7 +8,7 @@ import * as path from 'path';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mysql',
+      type: 'mongodb',
       host: environment.database.host,
       port: environment.database.port,
       username: environment.database.user,
