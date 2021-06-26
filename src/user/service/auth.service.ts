@@ -1,7 +1,6 @@
 import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {UserService} from './user.service';
 import {User} from '../entity/user.entity';
-import * as bcrypt from 'bcryptjs'
 import {JwtService} from '@nestjs/jwt';
 import {Strategy} from 'passport-local';
 import {PassportStrategy} from '@nestjs/passport';
@@ -32,18 +31,17 @@ export class AuthService extends PassportStrategy(Strategy) {
    *
    * @public
    * @param username
-   * @param pass
+   * @param password
    * @returns Promise<User>
    */
-  public async validate(username: string, pass: string): Promise<User> {
-    const user = await this.userService.findOne(username);
+  public async validate(username: string, password: string): Promise<User> {
+    const user = await this.userService.processAuth(username, password);
 
-    if (!user || !bcrypt.compareSync(pass, user.password)) {
+    if (!user) {
       throw new UnauthorizedException();
     }
 
-    const {password, ...result} = user;
-    return result as User;
+    return user;
   }
 
   /**

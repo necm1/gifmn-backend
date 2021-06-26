@@ -11,6 +11,7 @@ import {UserController} from './controller/user.controller';
 import {AuthController} from './controller/auth.controller';
 import {environment} from '../environment';
 import {JwtStrategy} from './strategy/jwt.strategy';
+import {PostModule} from '../post/post.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import {JwtStrategy} from './strategy/jwt.strategy';
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 10,
-    })
+    }),
+    PostModule
   ],
   providers: [
     UserService,

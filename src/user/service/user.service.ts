@@ -1,7 +1,8 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {User} from '../entity/user.entity';
 import {Repository} from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -33,5 +34,29 @@ export class UserService {
 
   async remove(id: string): Promise<void> {
     await this.usersRepository.delete(id);
+  }
+
+  /**
+   * Process Auth
+   *
+   * @public
+   * @param username
+   * @param pass
+   * @returns Promise<User>
+   */
+  public async processAuth(username: string, pass: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      select: ['username', 'password'],
+      where: {username}
+    });
+
+    if (!user || !bcrypt.compareSync(pass, user.password)) {
+      return undefined;
+    }
+
+    // Exclude Password
+    const {password, ...result} = user;
+
+    return result as User
   }
 }

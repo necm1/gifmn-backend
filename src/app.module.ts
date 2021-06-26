@@ -2,13 +2,14 @@ import {Module} from '@nestjs/common';
 import {environment} from './environment';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {UserModule} from './user/user.module';
+import { PostModule } from './post/post.module';
 import * as path from 'path';
 
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mongodb',
+      type: 'mysql',
       host: environment.database.host,
       port: environment.database.port,
       username: environment.database.user,
@@ -23,7 +24,8 @@ import * as path from 'path';
       logging: !environment.production,
       synchronize: false
     }),
-    UserModule
+    UserModule,
+    PostModule
   ],
   controllers: [],
   providers: [],
