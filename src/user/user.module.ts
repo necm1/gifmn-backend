@@ -1,14 +1,16 @@
 import {Module} from '@nestjs/common';
 import {TypeOrmModule} from '@nestjs/typeorm';
-import {User} from './entity/user.entity';
-import {UserService} from './service/user.service';
-import {UserController} from './controller/user.controller';
-import {AuthService} from './service/auth.service';
-import {AuthController} from './controller/auth.controller';
 import {PassportModule} from '@nestjs/passport';
 import {JwtModule} from '@nestjs/jwt';
+import {ThrottlerGuard, ThrottlerModule} from '@nestjs/throttler';
+import {APP_GUARD} from '@nestjs/core';
+import {User} from './entity/user.entity';
+import {UserService} from './service/user.service';
+import {AuthService} from './service/auth.service';
+import {UserController} from './controller/user.controller';
+import {AuthController} from './controller/auth.controller';
 import {environment} from '../environment';
-import {JwtStrategy} from "./strategy/jwt.strategy";
+import {JwtStrategy} from './strategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -18,9 +20,22 @@ import {JwtStrategy} from "./strategy/jwt.strategy";
       secret: environment.auth.secret,
       signOptions: {expiresIn: environment.auth.expireIn},
     }),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    })
   ],
-  providers: [UserService, AuthService, JwtStrategy],
+  providers: [
+    UserService,
+    AuthService,
+    JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   controllers: [UserController, AuthController],
   exports: [JwtModule]
 })
-export class UserModule {}
+export class UserModule {
+}
