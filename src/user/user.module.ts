@@ -8,6 +8,7 @@ import {AuthController} from './controller/auth.controller';
 import {PassportModule} from '@nestjs/passport';
 import {JwtModule} from '@nestjs/jwt';
 import {environment} from '../environment';
+import {JwtStrategy} from "./strategy/jwt.strategy";
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import {environment} from '../environment';
       signOptions: {expiresIn: environment.auth.expireIn},
     }),
   ],
-  providers: [UserService, AuthService],
+  providers: [UserService, AuthService, JwtStrategy],
   controllers: [UserController, AuthController],
   exports: [JwtModule]
 })

@@ -1,7 +1,8 @@
-import {Controller, Get} from '@nestjs/common';
+import {Controller, Get, Request, UseGuards} from '@nestjs/common';
 import {UserService} from '../service/user.service';
 import {User} from '../entity/user.entity';
 import {AuthService} from '../service/auth.service';
+import {AuthGuard} from '@nestjs/passport';
 
 @Controller('user')
 export class UserController {
@@ -9,9 +10,9 @@ export class UserController {
   constructor(private readonly userRepository: UserService, private readonly authService: AuthService) {
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
-  public async user(): Promise<User> {
-    console.log(await this.authService.validate('necm1', 't2est'))
-    return this.userRepository.findOne('necm1');
+  public user(@Request() req): User {
+    return req.user;
   }
 }

@@ -14,7 +14,7 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post()
   public async login(@Request() req) {
-    return this.authService.validate('necm1', 'test');
+    return this.authService.login(req.user);
   }
 
 }
