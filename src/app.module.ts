@@ -2,9 +2,9 @@ import {Module} from '@nestjs/common';
 import {environment} from './environment';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {UserModule} from './user/user.module';
-import { PostModule } from './post/post.module';
+import {PostModule} from './post/post.module';
+import {PaginateModule} from './paginate/paginate.module';
 import * as path from 'path';
-
 
 @Module({
   imports: [
@@ -25,7 +25,8 @@ import * as path from 'path';
       synchronize: false
     }),
     UserModule,
-    PostModule
+    PostModule,
+    PaginateModule
   ],
   controllers: [],
   providers: [],
