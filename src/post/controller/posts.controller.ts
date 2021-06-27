@@ -1,7 +1,7 @@
-import {Controller, Get} from '@nestjs/common';
+import {Controller, DefaultValuePipe, Get, ParseIntPipe, Query} from '@nestjs/common';
 import {PostService} from '../service/post.service';
-import {Paginate, Paginated, PaginateQuery} from 'nestjs-paginate';
 import {Post} from '../entity/post.entity';
+import {Pagination} from 'nestjs-typeorm-paginate';
 
 @Controller('posts')
 export class PostsController {
@@ -17,7 +17,15 @@ export class PostsController {
    * @param query
    * @returns Promise<Paginated<Post>>
    */
-  public async posts(@Paginate() query: PaginateQuery): Promise<Paginated<Post>> {
-    return this.postService.paginatePosts(query);
+  public async posts(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
+  ): Promise<Pagination<Post>> {
+    limit = limit > 100 ? 100 : limit;
+    return this.postService.paginatePosts({
+      page,
+      limit,
+      route: 'http://127.0.0.1:1337/posts',
+    });
   }
 }

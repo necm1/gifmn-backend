@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
 import {Post} from '../entity/post.entity';
-import {paginate, Paginated, PaginateQuery} from 'nestjs-paginate';
+import {IPaginationOptions, paginate, Pagination} from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class PostService {
@@ -20,14 +20,10 @@ export class PostService {
    * Paginate Posts
    *
    * @public
-   * @param query
+   * @param options
    * @returns Promise<Paginated<Post>>
    */
-  public async paginatePosts(query: PaginateQuery): Promise<Paginated<Post>> {
-    return paginate(query, this.postRepository, {
-      sortableColumns: ['id'],
-      defaultSortBy: [['id', 'DESC']],
-      maxLimit: 35
-    });
+  public async paginatePosts(options: IPaginationOptions): Promise<Pagination<Post>> {
+    return paginate<Post>(this.postRepository, options);
   }
 }
