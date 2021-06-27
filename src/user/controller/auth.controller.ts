@@ -1,7 +1,8 @@
-import {Controller, Post, Request, UseGuards} from '@nestjs/common';
+import {Controller, Post, Request, UseFilters, UseGuards} from '@nestjs/common';
 import {Throttle, ThrottlerGuard} from '@nestjs/throttler';
 import {AuthGuard} from '@nestjs/passport';
 import {AuthService} from '../service/auth.service';
+import {HttpExceptionFilter} from '../../_filter/http-exception.filter';
 
 @Controller('auth')
 /**

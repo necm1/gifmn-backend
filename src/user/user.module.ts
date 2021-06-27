@@ -12,6 +12,7 @@ import {AuthController} from './controller/auth.controller';
 import {environment} from '../environment';
 import {JwtStrategy} from './strategy/jwt.strategy';
 import {PostModule} from '../post/post.module';
+import {ResponseService} from '../_service/response.service';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import {PostModule} from '../post/post.module';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    ResponseService
   ],
   controllers: [UserController, AuthController],
   exports: [JwtModule]
