@@ -10,6 +10,7 @@ async function bootstrap(): Promise<void> {
     new FastifyAdapter({logger: !environment.production})
   );
 
+  app.enableCors();
   await app
     .useGlobalFilters(new HttpExceptionFilter())
     .listen(environment.http.port, environment.http.host);
