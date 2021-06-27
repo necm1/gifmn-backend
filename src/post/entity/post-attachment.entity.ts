@@ -19,7 +19,7 @@ export class PostAttachment {
   @Column()
   url: string;
 
-  @Column({type: 'timestamp'})
+  @Column({type: 'timestamp', select: false})
   created_at: Date;
 
   @Column({type: 'timestamp', nullable: true, select: false})

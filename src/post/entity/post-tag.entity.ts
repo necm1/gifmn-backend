@@ -17,7 +17,7 @@ export class PostTag {
   @Column()
   name: string;
 
-  @Column({type: 'timestamp'})
+  @Column({type: 'timestamp', select: false})
   created_at: Date;
 
   @Column({type: 'timestamp', nullable: true, select: false})

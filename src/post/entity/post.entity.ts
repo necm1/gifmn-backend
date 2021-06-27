@@ -3,6 +3,7 @@ import {User} from '../../user/entity/user.entity';
 import {PostContent} from '../model/post-content.model';
 import {PostTag} from './post-tag.entity';
 import {PostAttachment} from './post-attachment.entity';
+import {PostCategory} from './post-category.entity';
 
 @Entity({name: 'posts'})
 /**
@@ -11,6 +12,12 @@ import {PostAttachment} from './post-attachment.entity';
 export class Post {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @OneToOne(category => PostCategory, {
+    eager: true
+  })
+  @JoinColumn({name: 'category_id'})
+  category: PostCategory;
 
   @OneToOne(() => User)
   @JoinColumn({name: 'user_id'})

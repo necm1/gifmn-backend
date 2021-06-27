@@ -1,7 +1,10 @@
 import {Module} from '@nestjs/common';
 import {environment} from './environment';
 import * as path from 'path';
+
 import {TypeOrmModule} from '@nestjs/typeorm';
+import {SnakeNamingStrategy} from 'typeorm-naming-strategies';
+
 import {UserModule} from './user/user.module';
 import {PostModule} from './post/post.module';
 
@@ -21,7 +24,8 @@ import {PostModule} from './post/post.module';
       },
       keepConnectionAlive: true,
       logging: !environment.production,
-      synchronize: false
+      synchronize: false,
+      namingStrategy: new SnakeNamingStrategy()
     }),
     UserModule,
     PostModule
