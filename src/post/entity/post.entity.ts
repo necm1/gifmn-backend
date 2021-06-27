@@ -22,15 +22,19 @@ export class Post {
   @Column()
   description: string;
 
-  @OneToMany(() => PostTag, tag => tag.post)
-  tags: PostTag[];
-
-  @OneToMany(() => PostAttachment, attachment => attachment.post)
+  @OneToMany(() => PostAttachment, attachment => attachment.post, {
+    eager: true
+  })
   attachments: PostAttachment[];
 
-  @Column({type: 'timestamp', name: 'created_at'})
-  createdAt: Date;
+  @OneToMany(() => PostTag, tag => tag.post, {
+    eager: true
+  })
+  tags: PostTag[];
 
-  @Column({type: 'timestamp', name: 'updated_at', nullable: true})
-  updatedAt: Date;
+  @Column({type: 'timestamp'})
+  created_at: Date;
+
+  @Column({type: 'timestamp', nullable: true, select: false})
+  updated_at: Date;
 }
