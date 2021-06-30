@@ -27,10 +27,6 @@ export class UserController {
    * @returns Promise<APIResponse<User>>
    */
   public async user(@Request() req): Promise<APIResponse<User>> {
-    this.postService.findAll().then(value => {
-      console.log(value[0]);
-    });
-
     return this.response.build<User>(req.user);
   }
 }

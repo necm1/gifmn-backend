@@ -49,13 +49,12 @@ export class AuthService extends PassportStrategy(Strategy) {
    *
    * @public
    * @param user
-   * @returns Promise<{access_token: string}>
+   * @returns Promise<string>
    */
-  public async login(user: User): Promise<{access_token: string}> {
-    const payload = {username: user.username, sub: user.id};
-
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+  public async login(user: User): Promise<string> {
+    return this.jwtService.sign({
+      username: user.username,
+      sub: user.id
+    });
   }
 }
