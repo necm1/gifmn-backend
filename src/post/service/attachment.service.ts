@@ -2,8 +2,6 @@ import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
 import {PostAttachment} from '../entity/post-attachment.entity';
-import {PostCategory} from '../entity/post-category.entity';
-import {CategoryNotFoundException} from '../exception/category-not-found.exception';
 import {AttachmentUrlNotFoundException} from '../exception/attachment-url-not-found.exception';
 
 @Injectable()

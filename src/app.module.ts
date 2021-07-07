@@ -7,6 +7,7 @@ import {SnakeNamingStrategy} from 'typeorm-naming-strategies';
 
 import {UserModule} from './user/user.module';
 import {PostModule} from './post/post.module';
+import { CacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import {PostModule} from './post/post.module';
       namingStrategy: new SnakeNamingStrategy()
     }),
     UserModule,
-    PostModule
+    PostModule,
+    CacheModule
   ]
 })
 /**

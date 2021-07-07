@@ -10,14 +10,23 @@ import {CategoryController} from './controller/category.controller';
 import {CategoryService} from './service/category.service';
 import {ResponseService} from '../_service/response.service';
 import {AttachmentService} from './service/attachment.service';
+import {TagController} from './controller/tag.controller';
+import {TagService} from './service/tag.service';
+import {TagRepository} from './repository/tag.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Post, PostTag, PostAttachment, PostCategory]),
+    TypeOrmModule.forFeature([
+      Post,
+      PostTag,
+      TagRepository,
+      PostAttachment,
+      PostCategory
+    ]),
   ],
-  providers: [PostService, CategoryService, ResponseService, AttachmentService],
+  providers: [PostService, CategoryService, ResponseService, AttachmentService, TagService],
   exports: [TypeOrmModule, PostService],
-  controllers: [PostController, CategoryController]
+  controllers: [PostController, CategoryController, TagController]
 })
 export class PostModule {
 }

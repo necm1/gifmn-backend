@@ -1,38 +1,46 @@
-import {Injectable, UnauthorizedException} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
+import {CACHE_MANAGER, Inject, Injectable} from '@nestjs/common';
 import {User} from '../entity/user.entity';
-import {Repository} from 'typeorm';
+import {UserRepository} from '../repository/user.repository';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
+  private store: any;
+
   /**
-    * UserRepository Constructor
-    *
-    * @constructor
-    * @param usersRepository
+   * UserRepository Constructor
+   *
+   * @constructor
+   * @param usersRepository
+   * @param cacheManager
    */
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-  ) {}
-
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    private usersRepository: UserRepository,
+    @Inject(CACHE_MANAGER) private cacheManager
+  ) {
+    this.store = cacheManager.store;
+    this.findByUsername('necm1').then(value => console.log(value));
   }
 
   /**
-   * Find One
+   * Find User By Username
    *
-   * @todo dont forget to add {cache: true} in options
+   * @public
    * @param username
    * @returns Promise<User>
    */
-  async findOne(username: string): Promise<User> {
+ public async findByUsername(username: string): Promise<User> {
     return this.usersRepository.findOne({where: {username}});
   }
 
-  async remove(id: string): Promise<void> {
+
+  /**
+   * Remove User By ID
+   *
+   * @public
+   * @param id
+   */
+  public async remove(id: number): Promise<void> {
     await this.usersRepository.delete(id);
   }
 

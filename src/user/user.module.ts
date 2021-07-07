@@ -13,10 +13,11 @@ import {environment} from '../environment';
 import {JwtStrategy} from './strategy/jwt.strategy';
 import {PostModule} from '../post/post.module';
 import {ResponseService} from '../_service/response.service';
+import {UserRepository} from './repository/user.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, UserRepository]),
     PassportModule,
     JwtModule.register({
       secret: environment.auth.secret,
@@ -39,7 +40,7 @@ import {ResponseService} from '../_service/response.service';
     ResponseService
   ],
   controllers: [UserController, AuthController],
-  exports: [JwtModule]
+  exports: [JwtModule, TypeOrmModule]
 })
 export class UserModule {
 }
