@@ -20,9 +20,10 @@ export class TagService {
    */
   constructor(
     private tagRepository: TagRepository,
-    @Inject(CACHE_MANAGER) private cacheManager
+    @Inject(CACHE_MANAGER)
+    private cacheManager
   ) {
-    this.tagRepository.setProvider(cacheManager.store);
+    this.tagRepository.setProvider(cacheManager);
   }
 
   /**

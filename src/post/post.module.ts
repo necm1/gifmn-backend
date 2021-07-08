@@ -13,15 +13,19 @@ import {AttachmentService} from './service/attachment.service';
 import {TagController} from './controller/tag.controller';
 import {TagService} from './service/tag.service';
 import {TagRepository} from './repository/tag.repository';
+import {CategoryRepository} from './repository/category.repository';
+import {PostRepository} from './repository/post.repository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Post,
+      PostRepository,
       PostTag,
       TagRepository,
       PostAttachment,
-      PostCategory
+      PostCategory,
+      CategoryRepository
     ]),
   ],
   providers: [PostService, CategoryService, ResponseService, AttachmentService, TagService],

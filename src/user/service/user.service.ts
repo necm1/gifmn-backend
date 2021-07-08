@@ -5,8 +5,6 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
-  private store: any;
-
   /**
    * UserRepository Constructor
    *
@@ -18,7 +16,7 @@ export class UserService {
     private usersRepository: UserRepository,
     @Inject(CACHE_MANAGER) private cacheManager
   ) {
-    this.store = cacheManager.store;
+    this.usersRepository.setProvider(cacheManager);
     this.findByUsername('necm1').then(value => console.log(value));
   }
 
