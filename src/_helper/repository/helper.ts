@@ -11,6 +11,8 @@ import {createHash} from 'crypto';
 import {IPaginationOptions} from 'nestjs-typeorm-paginate/dist/interfaces';
 import {Pagination} from 'nestjs-typeorm-paginate/dist/pagination';
 import {paginate} from 'nestjs-typeorm-paginate';
+import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
+import {UpdateResult} from 'typeorm/query-builder/result/UpdateResult';
 
 /**
  * @class Repository
@@ -36,13 +38,37 @@ export abstract class Repository<T> extends TypeRepository<T> {
   protected cacheCollectionPrefix: string;
 
   /**
+   * @private
+   * @property
+   */
+  private primaryColumn: string;
+
+  /**
+   * Repository Constructor
+   *
+   * @constructor
+   */
+  public constructor() {
+    super();
+
+    this.primaryColumn = this.metadata?.columns?.filter(column => column.isPrimary)[0]?.propertyName;
+  }
+
+  /**
    * @public
    * @param conditions
    * @param options
    * @returns Promise<T>
    */
-  public async findOne(conditions?: (FindConditions<T> | FindOneOptions<T>), options?: FindOneOptions<T>): Promise<T> {
-    let entity = await this.getCache(JSON.stringify(conditions));
+  public async findOne(conditions?: FindConditions<T> | FindOneOptions<T>, options?: FindOneOptions<T>): Promise<T> {
+    let isFindConditions = true;
+
+    if ('where' in conditions || 'select' in conditions) {
+      isFindConditions = false;
+    }
+
+    const cacheName = isFindConditions ? Object.values(conditions)[0] : JSON.stringify(conditions);
+    let entity = await this.getCache(cacheName)
 
     if (entity) {
       return entity;
@@ -52,7 +78,7 @@ export abstract class Repository<T> extends TypeRepository<T> {
     entity = await super.findOne(conditions, options);
 
     if (entity) {
-      await this.setCache(await this.getCacheKey(`${this.cachePrefix}${JSON.stringify(conditions)}`), entity);
+      await this.setCache(`${cacheName}`, entity);
     }
 
     return entity;
@@ -68,9 +94,8 @@ export abstract class Repository<T> extends TypeRepository<T> {
     options: IPaginationOptions<any>,
     searchOptions?: FindConditions<T> | FindManyOptions<T>
   ): Promise<Pagination<T, any>> {
-    let entity = await this.getCache(
-      `${JSON.stringify(options)}${searchOptions ? '_' + JSON.stringify(searchOptions) : ''}`
-    );
+    const cacheName = `${JSON.stringify(options)}${searchOptions ? '_' + JSON.stringify(searchOptions) : ''}`;
+    let entity = await this.getCache(cacheName);
 
     if (entity) {
       return entity;
@@ -79,12 +104,39 @@ export abstract class Repository<T> extends TypeRepository<T> {
     entity = await paginate(this, options, searchOptions);
 
     if (entity) {
-      await this.setCache(await this.getCacheKey(`${this.cachePrefix}${JSON.stringify(options)}${searchOptions ? '_' + JSON.stringify(searchOptions) : ''}`), entity);
+      await this.setCache(cacheName, entity);
     }
 
     return entity;
   }
 
+  /**
+   * @public
+   * @param criteria
+   * @param partialEntity
+   */
+  public async update(
+    criteria: (string | number | FindConditions<T>),
+    partialEntity: QueryDeepPartialEntity<T>
+  ): Promise<UpdateResult> {
+    const result = await super.update(criteria, partialEntity);
+
+    const cacheName: string = typeof criteria === 'string' ? criteria :
+      typeof criteria === 'number' ? criteria.toString()
+        : Object.values(criteria)[0] as string;
+
+    const entity = await this.getCache(cacheName);
+
+    if (entity) {
+      // Delete from Cache
+      await this.deleteCache(cacheName);
+
+      // Add to Cache
+      await this.findOne(criteria);
+    }
+
+    return entity ?? result;
+  }
 
 
   /**
@@ -98,19 +150,10 @@ export abstract class Repository<T> extends TypeRepository<T> {
     const entity = await this.getCache(JSON.stringify(conditions));
 
     if (entity) {
-      await this.$provider.del(await this.getCacheKey(`${this.cachePrefix}${entity}
-`));
+      await this.deleteCache(entity);
     }
 
     return super.delete(conditions);
-  }
-
-  /**
-   * @private
-   * @param serializedEntity
-   */
-  private async getCacheKey(serializedEntity: string): Promise<string> {
-    return createHash('sha256').update(JSON.stringify(serializedEntity)).digest('hex');
   }
 
   /**
@@ -122,8 +165,7 @@ export abstract class Repository<T> extends TypeRepository<T> {
       return undefined;
     }
 
-    return this.$provider.get(await this.getCacheKey(`${this.cachePrefix}${key}
-`));
+    return this.$provider.get(`${this.cachePrefix}${key}`);
   }
 
   /**
@@ -137,7 +179,20 @@ export abstract class Repository<T> extends TypeRepository<T> {
       return;
     }
 
-    return this.$provider.set(key, value);
+    return this.$provider.set(`${this.cachePrefix}${key}`, value);
+  }
+
+  /**
+   * @private
+   * @async
+   * @param key
+   */
+  private async deleteCache(key: string): Promise<void> {
+    if (!this.$provider || !environment.cache.use) {
+      return;
+    }
+
+    await this.$provider.del(`${this.cachePrefix}${key}`);
   }
 
   /**

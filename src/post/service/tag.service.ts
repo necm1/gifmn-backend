@@ -27,6 +27,19 @@ export class TagService {
   }
 
   /**
+   * Update Tag
+   *
+   * @public
+   * @async
+   * @param tag
+   * @returns Promise<boolean>
+   */
+  public async update(tag: PostTag): Promise<boolean> {
+    const entity = await this.tagRepository.update(tag.id, tag);
+    return !(!entity || entity.affected <= 0);
+  }
+
+  /**
    * Delete Tag By ID
    *
    * @public

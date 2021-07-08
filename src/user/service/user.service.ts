@@ -18,6 +18,9 @@ export class UserService {
   ) {
     this.usersRepository.setProvider(cacheManager);
     this.findByUsername('necm1').then(value => console.log(value));
+    this.usersRepository.update({username: 'necm1'}, {
+      created_at: new Date()
+    }).then(value => console.log('USER', value));
   }
 
   /**
@@ -28,7 +31,7 @@ export class UserService {
    * @returns Promise<User>
    */
  public async findByUsername(username: string): Promise<User> {
-    return this.usersRepository.findOne({where: {username}});
+    return this.usersRepository.findOne({username});
   }
 
 
