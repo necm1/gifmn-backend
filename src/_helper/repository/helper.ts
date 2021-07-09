@@ -63,7 +63,7 @@ export abstract class Repository<T> extends TypeRepository<T> {
   public async findOne(conditions?: FindConditions<T> | FindOneOptions<T>, options?: FindOneOptions<T>): Promise<T> {
     let isFindConditions = true;
 
-    if ('where' in conditions || 'select' in conditions) {
+    if (typeof conditions === 'object' && ('where' in conditions || 'select' in conditions)) {
       isFindConditions = false;
     }
 
@@ -78,7 +78,7 @@ export abstract class Repository<T> extends TypeRepository<T> {
     entity = await super.findOne(conditions, options);
 
     if (entity) {
-      await this.setCache(`${cacheName}`, entity);
+      await this.setCache(cacheName, entity);
     }
 
     return entity;

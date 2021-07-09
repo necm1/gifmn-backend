@@ -3,6 +3,7 @@ import {FastifyAdapter, NestFastifyApplication} from '@nestjs/platform-fastify';
 import {AppModule} from './app.module';
 import {environment} from './environment';
 import {HttpExceptionFilter} from './_filter/http-exception.filter';
+import {ValidationPipe} from '@nestjs/common';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -14,6 +15,7 @@ async function bootstrap(): Promise<void> {
 
   await app
     .useGlobalFilters(new HttpExceptionFilter())
+    .useGlobalPipes(new ValidationPipe())
     .listen(environment.http.port, environment.http.host);
 }
 bootstrap();
