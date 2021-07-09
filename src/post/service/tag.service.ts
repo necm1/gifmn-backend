@@ -53,8 +53,12 @@ export class TagService {
    * @returns Promise<void>
    */
   public async update(tag: PostTag, id?: number): Promise<void> {
-    if (id && tag.id && tag.id !== id) {
-      throw new HttpException(`Can not update Entity ID to ${tag.id}`, 400);
+    if (id && tag.id) {
+      delete tag.id;
+    }
+
+    if (tag.name && tag.name.length < 3) {
+      throw new HttpException('Minimum length of name is 3', 400);
     }
 
     const entity = await this.tagRepository.update(id ?? tag.id, tag);
