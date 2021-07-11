@@ -8,7 +8,10 @@ import {ValidationPipe} from '@nestjs/common';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({logger: !environment.production})
+    new FastifyAdapter({logger: !environment.production}),
+    {
+      logger: environment.http.logger
+    }
   );
 
   app.enableCors(environment.cors);

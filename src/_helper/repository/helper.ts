@@ -7,7 +7,6 @@ import {
   Repository as TypeRepository
 } from 'typeorm';
 import {environment} from '../../environment';
-import {createHash} from 'crypto';
 import {IPaginationOptions} from 'nestjs-typeorm-paginate/dist/interfaces';
 import {Pagination} from 'nestjs-typeorm-paginate/dist/pagination';
 import {paginate} from 'nestjs-typeorm-paginate';
@@ -23,12 +22,6 @@ export abstract class Repository<T> extends TypeRepository<T> {
    * @protected
    * @property
    */
-  protected $provider: any;
-
-  /**
-   * @protected
-   * @property
-   */
   protected cachePrefix: string;
 
   /**
@@ -36,6 +29,12 @@ export abstract class Repository<T> extends TypeRepository<T> {
    * @property
    */
   protected cacheCollectionPrefix: string;
+
+  /**
+   * @private
+   * @property
+   */
+  private $provider: any;
 
   /**
    * @private
@@ -179,7 +178,9 @@ export abstract class Repository<T> extends TypeRepository<T> {
       return;
     }
 
-    return this.$provider.set(`${this.cachePrefix}${key}`, value);
+    return this.$provider.set(`${this.cachePrefix}${key}`, value, {
+      ttl: environment.cache.ttl
+    });
   }
 
   /**

@@ -17,10 +17,6 @@ export class UserService {
     @Inject(CACHE_MANAGER) private cacheManager
   ) {
     this.usersRepository.setProvider(cacheManager);
-    this.findByUsername('necm1').then(value => console.log(value));
-    this.usersRepository.update({username: 'necm1'}, {
-      created_at: new Date()
-    }).then(value => console.log('USER', value));
   }
 
   /**

@@ -5,15 +5,16 @@ export const environment = {
 
   http: {
     host: '127.0.0.1',
-    port: 90,
+    port: 1337,
+    logger: true
   },
 
   database: {
     host: '127.0.0.1',
     port: 3306,
     user: 'root',
-    password: 'root',
-    name: 'test'
+    password: '',
+    name: 'gifmn'
   },
 
   auth: {
@@ -29,8 +30,9 @@ export const environment = {
   },
 
   cache: {
+    use: true,
     store: redisStore,
-    host: 'redis',
+    host: 'localhost',
     port: 6379,
     ttl: 3000
   }
