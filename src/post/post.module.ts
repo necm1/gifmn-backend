@@ -15,7 +15,7 @@ import {TagService} from './service/tag.service';
 import {TagRepository} from './repository/tag.repository';
 import {CategoryRepository} from './repository/category.repository';
 import {PostRepository} from './repository/post.repository';
-import { UploadService } from './service/upload.service';
+import {UploadService} from './service/upload.service';
 
 @Module({
   imports: [

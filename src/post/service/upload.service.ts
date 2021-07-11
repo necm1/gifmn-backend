@@ -12,6 +12,12 @@ import {appPath} from '../../main';
 @Injectable()
 export class UploadService {
   /**
+   * @public
+   * @property
+   */
+  public savedFiles: string[] = [];
+
+  /**
    * @private
    * @property
    */
@@ -33,35 +39,47 @@ export class UploadService {
    *
    * @private
    * @async
-   * @param file
+   * @param files
    * @returns Promise<void>
    */
-  public async upload(file: any): Promise<void> {
-    await this.validateFile(file.fieldname, file.mimetype);
-    const name = Math.random().toString(36).substr(2, 7);
+  public async upload(files: any): Promise<(string[] | void)> {
+    const savedFiles: string[] = [];
 
-    try {
-      const entity = await this.attachmentService.getByURL(name);
+    for await (const file of files) {
+      console.log(file);
+      await this.validateFile(file.fieldname, file.mimetype);
+      let name = Math.random().toString(36).substr(2, 7);
 
-      // Redo the whole process
-      // to generate a new name
-      if (entity) {
-        return await this.upload(file);
-      }
-    } catch (e) {
-      // Attachment does not exists
-      // so we are ready to go
-      if (e instanceof AttachmentUrlNotFoundException) {
-        const directory = environment.upload.appPath ? path.join(appPath, `${environment.upload.path}`) : environment.upload.path;
+      try {
+        name = await this.validateEntity(name);
+      } catch (e) {
+        // Attachment does not exists
+        // so we are ready to go
+        if (e instanceof AttachmentUrlNotFoundException) {
+          const directory = environment.upload.appPath ? path.join(appPath, `${environment.upload.path}`) : environment.upload.path;
 
-        await this.createDirectoryIfNotExists(directory);
+          await this.createDirectoryIfNotExists(directory);
 
-        pump(
-          file.file,
-          fs.createWriteStream(path.join(directory, `${name}.${file.mimetype.split('/')[1]}`))
-        );
+          pump(file.file, fs.createWriteStream(path.join(directory, `${name}.${file.mimetype.split('/')[1]}`)))
+
+          savedFiles.push(`${name}.${file.mimetype.split('/')[1]}`);
+        }
       }
     }
+
+    return savedFiles;
+  }
+
+  private async validateEntity(name: string): Promise<string> {
+    const entity = await this.attachmentService.getByURL(name);
+
+    // Redo the whole process
+    // to generate a new name
+    if (entity) {
+      return await this.validateEntity(Math.random().toString(36).substr(2, 7));
+    }
+
+    return name;
   }
 
   /**

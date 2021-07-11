@@ -45,6 +45,6 @@ export class PostController {
   @PostReq()
   @UseGuards(AuthGuard('jwt'))
   public async upload(@Req() req): Promise<APIResponse<any>> {
-    return this.responseService.build(await this.uploadService.upload(await req.file()));
+    return this.responseService.build(await this.uploadService.upload(await req.files()));
   }
 }

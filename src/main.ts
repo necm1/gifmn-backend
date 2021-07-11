@@ -13,7 +13,13 @@ async function bootstrap(): Promise<void> {
   );
 
   app.enableCors(environment.cors);
-  app.register(fastifyMultipart);
+
+  await app.register(fastifyMultipart, {
+    limits: {
+      fileSize: environment.upload.maxFileSize,
+      files: environment.upload.maxFiles
+    }
+  });
 
   await app
     .useGlobalFilters(new HttpExceptionFilter())
