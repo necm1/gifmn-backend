@@ -1,10 +1,21 @@
 import {CACHE_MANAGER, Inject, Injectable} from '@nestjs/common';
 import {Post} from '../entity/post.entity';
-import {IPaginationOptions, paginate, Pagination} from 'nestjs-typeorm-paginate';
+import {IPaginationOptions, Pagination} from 'nestjs-typeorm-paginate';
 import {PostRepository} from '../repository/post.repository';
 
 @Injectable()
+/**
+ * @class PostService
+ */
 export class PostService {
+  /**
+   * PostService Constructor
+   *
+   * @constructor
+   * @param postRepository
+   * @param attachmentService
+   * @param cacheManager
+   */
   constructor(
     private postRepository: PostRepository,
     @Inject(CACHE_MANAGER) private readonly cacheManager
@@ -12,14 +23,12 @@ export class PostService {
     this.postRepository.setProvider(cacheManager);
   }
 
-  findAll(): Promise<Post[]> {
-    return this.postRepository.find({relations: ['user', 'tags', 'attachments']});
-  }
-
   /**
    * @public
+   * @async
    * @param id
    * @param options
+   * @returns Promise<Pagination<Post>>
    */
   public async paginateCategoryPosts(id: number, options: IPaginationOptions): Promise<Pagination<Post>> {
     return this.postRepository.list(options, {
@@ -31,17 +40,6 @@ export class PostService {
       order: {
         id: 'DESC'
       }
-    })
+    });
   }
-
-  /**
-   * Paginate Posts
-   *
-   * @public
-   * @param options
-   * @returns Promise<Paginated<Post>>
-   */
- /* public async paginatePosts(options: IPaginationOptions): Promise<Pagination<Post>> {
-    return paginate<Post>(this.postRepository, options);
-  }*/
 }

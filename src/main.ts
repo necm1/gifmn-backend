@@ -20,4 +20,7 @@ async function bootstrap(): Promise<void> {
     .useGlobalPipes(new ValidationPipe())
     .listen(environment.http.port, environment.http.host);
 }
+
 bootstrap();
+
+export const appPath = __dirname;

@@ -1,11 +1,11 @@
-import {Controller, Get, Param, Req, Post as PostReq, HttpException, UseGuards} from '@nestjs/common';
+import {Controller, Get, Param, Req, Post as PostReq, UseGuards} from '@nestjs/common';
 import {AttachmentService} from '../service/attachment.service';
 import {APIResponse} from '../../_model/api-response.model';
 import {ResponseService} from '../../_service/response.service';
 import {Post} from '../entity/post.entity';
 import {AuthGuard} from '@nestjs/passport';
-import {MissingParameterException} from '../../_exception/missing-parameter.exception';
-import {environment} from '../../environment';
+import {PostService} from '../service/post.service';
+import {UploadService} from '../service/upload.service';
 
 @Controller('post')
 /**
@@ -13,29 +13,28 @@ import {environment} from '../../environment';
  */
 export class PostController {
   /**
-   * @private
-   * @property
-   */
-  private mimeTypes: string[] = environment.upload.allowedImages;
-
-  /**
    * PostController Constructor
    *
    * @constructor
    * @param attachmentService
    * @param responseService
+   * @param postService
+   * @param uploadService
    */
   constructor(
     private attachmentService: AttachmentService,
-    private responseService: ResponseService
+    private responseService: ResponseService,
+    private postService: PostService,
+    private uploadService: UploadService
   ) {
   }
 
   @Get(':url')
   /**
    * Get Post By First Attachment URL
-   * @async
+   *
    * @public
+   * @async
    * @param url
    * @returns Promise<APIResponse<Post>>
    */
@@ -46,21 +45,6 @@ export class PostController {
   @PostReq()
   @UseGuards(AuthGuard('jwt'))
   public async upload(@Req() req): Promise<APIResponse<any>> {
-    const mp = req.multipart(await this.handleUpload, err => {
-      if (err) {
-        throw new HttpException(err, 400);
-      }
-
-      console.log('success');
-    });
-    return this.responseService.build({});
-  }
-
-  private async handleUpload(field: string, file: any, filename: string, encoding: any, type: any) {
-    if (field !== 'images') {
-      throw new MissingParameterException('images');
-    }
-
-    console.log(field, filename, encoding, type);
+    return this.responseService.build(await this.uploadService.upload(await req.file()));
   }
 }
