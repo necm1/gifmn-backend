@@ -35,5 +35,11 @@ export const environment = {
     host: 'localhost',
     port: 6379,
     ttl: 3000
+  },
+
+  upload: {
+    allowedImages: [
+      'gif', 'jpeg', 'jpg', 'jfif', 'pjpeg', 'pjp', 'png', 'webp'
+    ]
   }
 };
