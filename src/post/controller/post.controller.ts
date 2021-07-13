@@ -1,4 +1,14 @@
-import {Controller, Get, Param, Req, Post as PostReq, UseGuards, Body} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Req,
+  Post as PostReq,
+  UseGuards,
+  Body,
+  UseInterceptors,
+  HttpException
+} from '@nestjs/common';
 import {AttachmentService} from '../service/attachment.service';
 import {APIResponse} from '../../_model/api-response.model';
 import {ResponseService} from '../../_service/response.service';
@@ -9,8 +19,9 @@ import {UploadService} from '../service/upload.service';
 import {PostAttachment} from '../entity/post-attachment.entity';
 import {FileModel} from '../model/file.model';
 import {CategoryService} from '../service/category.service';
-import {User} from '../../user/entity/user.entity';
 import {UserService} from '../../user/service/user.service';
+import {PostTag} from '../entity/post-tag.entity';
+import {TagService} from '../service/tag.service';
 
 @Controller('post')
 /**
@@ -27,6 +38,7 @@ export class PostController {
    * @param uploadService
    * @param categoryService
    * @param userService
+   * @param tagService
    */
   constructor(
     private attachmentService: AttachmentService,
@@ -34,7 +46,8 @@ export class PostController {
     private postService: PostService,
     private uploadService: UploadService,
     private categoryService: CategoryService,
-    private userService: UserService
+    private userService: UserService,
+    private tagService: TagService
   ) {
   }
 
@@ -54,20 +67,33 @@ export class PostController {
   @PostReq()
   @UseGuards(AuthGuard('jwt'))
   public async upload(
-    @Req() req,
-    @Body() data
+    @Req() req
   ): Promise<APIResponse<any>> {
-    //const uploadedFiles: FileModel[] = await this.uploadService.upload(await req.files());
+    const body = req.body;
+
+    if (!body || !body.post) {
+      throw new HttpException('yarram', 400);
+    }
+
+    const parsedPost = JSON.parse(body.post.value);
+
+    // Create Post
     const post: Post = await this.postService.create({
-      category: await this.categoryService.get(1),
-      user: await this.userService.findByUsername(req.user.username),
-      title: 'test',
-      description: 'test'
+      category: await this.categoryService.get(parsedPost.category),
+      user: await this.userService.findByUsername(parsedPost.user),
+      title: parsedPost.title,
+      description: parsedPost.description
     });
 
-    //const attachments: PostAttachment[] = await this.attachmentService.create(post, uploadedFiles);
+    // Upload Files
+    const uploadedFiles: FileModel[] = await this.uploadService.upload(!(body.images instanceof Array) ? [body.images] : body.images);
 
+    // Create Attachments
+    const attachments: PostAttachment[] = await this.attachmentService.create(post, uploadedFiles, req.body?.attachments ? JSON.parse(req.body?.attachments.value) : {});
 
-    return this.responseService.build({});
+    // Create Tags
+    const tags: PostTag[] = await this.tagService.create(req.body.tags?.value ? JSON.parse(req.body?.tags?.value) : {}, post);
+
+    return this.responseService.build(await this.postService.get(post.id, true));
   }
 }

@@ -17,8 +17,10 @@ async function bootstrap(): Promise<void> {
   await app.register(fastifyMultipart, {
     limits: {
       fileSize: environment.upload.maxFileSize,
-      files: environment.upload.maxFiles
-    }
+      files: environment.upload.maxFiles,
+      fields: 10
+    },
+    attachFieldsToBody: true
   });
 
   await app

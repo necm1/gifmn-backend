@@ -10,7 +10,9 @@ export class PostTag {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Post, post => post.tags)
+  @ManyToOne(() => Post, post => post.tags, {
+    cascade: true
+  })
   @JoinColumn({name: 'post_id'})
   post: Post;
 

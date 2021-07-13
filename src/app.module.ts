@@ -28,7 +28,7 @@ import {CacheModule} from './cache/cache.module';
     }),
     UserModule,
     PostModule,
-    CacheModule
+    CacheModule,
   ]
 })
 /**

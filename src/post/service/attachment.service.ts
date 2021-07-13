@@ -27,20 +27,28 @@ export class AttachmentService {
    * @public
    * @param post
    * @param attachments
+   * @param descriptions
    */
-  public async create(post: Post, attachments: FileModel[]): Promise<PostAttachment[]> {
+  public async create(post: Post, attachments: FileModel[], descriptions?: [{name: string, description: string}]): Promise<PostAttachment[]> {
     const attachmentEntities: PostAttachment[] = [];
 
-    attachments.forEach(file => {
+    for await (const file of attachments) {
+      const description = descriptions?.filter(entry => entry.name === file.old)[0];
+
       const attachment = this.attachmentRepository.create();
       attachment.post = post;
       attachment.url = file.name;
       attachment.type = file.type;
+      attachment.description = description?.description;
 
+      // push to array
       attachmentEntities.push(attachment);
-    });
 
-    return this.attachmentRepository.save(attachmentEntities);
+      // create database entry
+      await this.attachmentRepository.save(attachmentEntities);
+    }
+
+    return attachmentEntities;
   }
 
   /**

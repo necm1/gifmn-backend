@@ -59,9 +59,10 @@ export abstract class Repository<T> extends TypeRepository<T> {
    * @public
    * @param conditions
    * @param options
+   * @param force
    * @returns Promise<T>
    */
-  public async findOne(conditions?: FindConditions<T> | FindOneOptions<T>, options?: FindOneOptions<T>): Promise<T> {
+  public async findOne(conditions?: FindConditions<T> | FindOneOptions<T>, options?: FindOneOptions<T> | {force: boolean}): Promise<T> {
     let isFindConditions = true;
 
     if (typeof conditions === 'object' && ('where' in conditions || 'select' in conditions)) {
@@ -71,12 +72,20 @@ export abstract class Repository<T> extends TypeRepository<T> {
     const cacheName = isFindConditions ? Object.values(conditions)[0] : JSON.stringify(conditions);
     let entity = await this.getCache(cacheName)
 
-    if (entity) {
+    let forceInObj = false;
+    let force = false;
+
+    if (options && 'force' in options) {
+      forceInObj = true;
+      force = options.force;
+    }
+
+    if (!force && entity) {
       return entity;
     }
 
     // Get Entity From Database
-    entity = await super.findOne(conditions, options);
+    entity = await super.findOne(conditions, !forceInObj ? options as FindOneOptions<T> : {});
 
     if (entity) {
       await this.setCache(cacheName, entity);

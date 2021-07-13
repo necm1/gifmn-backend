@@ -32,7 +32,8 @@ export class Post {
   description: string;
 
   @OneToMany(() => PostAttachment, attachment => attachment.post, {
-    eager: true
+    eager: true,
+    cascade: true
   })
   attachments: PostAttachment[];
 

@@ -32,6 +32,7 @@
     "cache-manager": "^3.4.4",
     "cache-manager-redis-store": "^2.0.0",
     "class-validator": "^0.13.1",
+    "fastify-multer": "^2.0.2",
     "fastify-multipart": "^4.0.7",
     "fs-extra": "^9.1.0",
     "mongodb": "^3.6.9",

@@ -34,16 +34,18 @@ export class UploadService {
    * @param files
    * @returns Promise<FileModel[]>
    */
-  public async upload(files: any): Promise<FileModel[]> {
+  public async upload(files: any[]): Promise<FileModel[]> {
     const savedFiles: FileModel[] = [];
 
     for await (const file of files) {
       console.log(file);
       await this.validateFile(file.fieldname, file.mimetype);
-      let name = Math.random().toString(36).substr(2, 7);
+      const name = Math.random().toString(36).substr(2, 7);
 
       try {
-        name = await this.validateEntity(name);
+        const entity = await this.attachmentService.getByURL(name);
+
+        // @todo handle entity existence
       } catch (e) {
         // Attachment does not exists
         // so we are ready to go
@@ -52,11 +54,13 @@ export class UploadService {
 
           await this.createDirectoryIfNotExists(directory);
 
-          pump(file.file, fs.createWriteStream(path.join(directory, `${name}.${file.mimetype.split('/')[1]}`)))
+          //pump(file.file, fs.createWriteStream(path.join(directory, `${name}.${file.mimetype.split('/')[1]}`)))
+          fs.writeFileSync(path.join(directory, `${name}.${file.mimetype.split('/')[1]}`), await file.toBuffer());
 
           savedFiles.push({
-            name: `${name}.${file.mimetype.split('/')[1]}`,
-            type: await this.getFileType(file.mimetype.split('/')[1])
+            name: name,
+            type: await this.getFileType(file.mimetype.split('/')[1]),
+            old: file.filename
           });
         }
       }
@@ -91,18 +95,6 @@ export class UploadService {
     });
   }
 
-  private async validateEntity(name: string): Promise<string> {
-    const entity = await this.attachmentService.getByURL(name);
-
-    // Redo the whole process
-    // to generate a new name
-    if (entity) {
-      return await this.validateEntity(Math.random().toString(36).substr(2, 7));
-    }
-
-    return name;
-  }
-
   /**
    * Validate Request & File
    *
@@ -122,16 +114,13 @@ export class UploadService {
 
       // check for type
       if (
-        splittedType[0] !== 'image' ||
-        !environment.upload.allowedImageTypes.filter(fileType => splittedType[1] === fileType)[0]
-      ) {
-        throw new WrongTypeException(type);
-      }
-
-      if (
-        // @ts-ignore
-        splittedType[0] !== 'video' ||
-        !environment.upload.allowedVideoTypes.filter(fileType => splittedType[1] === fileType)[0]
+        !(
+          splittedType.indexOf('image') === -1 ||
+          !environment.upload.allowedImageTypes.filter(fileType => splittedType[1] === fileType)[0]) &&
+        !(
+          splittedType.indexOf('video') === -1 ||
+          !environment.upload.allowedVideoTypes.filter(fileType => splittedType[1] === fileType)[0]
+        )
       ) {
         throw new WrongTypeException(type);
       }

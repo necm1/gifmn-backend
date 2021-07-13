@@ -4,6 +4,7 @@ import {TagIdDeleteFailedException} from '../exception/tag-id-delete-failed.exce
 import {TagRepository} from '../repository/tag.repository';
 import {TagNotReplaceableException} from '../exception/tag-not-replaceable.exception';
 import {TagNotFoundException} from '../exception/tag-not-found.exception';
+import {Post} from '../entity/post.entity';
 
 @Injectable()
 /**
@@ -41,6 +42,28 @@ export class TagService {
     }
 
     return tag;
+  }
+
+  /**
+   * @public
+   * @async
+   * @param tags
+   * @param post
+   * @returns Promise<PostTag[]>
+   */
+  public async create(tags: PostTag[], post: Post): Promise<PostTag[]> {
+    const entries: PostTag[] = [];
+
+    for (const tag of tags) {
+      const entity = this.tagRepository.create();
+      entity.name = tag.name;
+      entity.post = post;
+
+      await this.tagRepository.save(entity);
+      entries.push(entity);
+    }
+
+    return entries;
   }
 
   /**
