@@ -19,7 +19,9 @@ export class Post {
   @JoinColumn({name: 'category_id'})
   category: PostCategory;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, {
+    cascade: true
+  })
   @JoinColumn({name: 'user_id'})
   user: User;
 

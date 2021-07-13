@@ -26,8 +26,7 @@ import {UserRepository} from './repository/user.repository';
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 10,
-    }),
-    PostModule
+    })
   ],
   providers: [
     UserService,
@@ -40,7 +39,7 @@ import {UserRepository} from './repository/user.repository';
     ResponseService
   ],
   controllers: [UserController, AuthController],
-  exports: [JwtModule, TypeOrmModule]
+  exports: [JwtModule, TypeOrmModule, UserService]
 })
 export class UserModule {
 }

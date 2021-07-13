@@ -3,6 +3,8 @@ import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
 import {PostAttachment} from '../entity/post-attachment.entity';
 import {AttachmentUrlNotFoundException} from '../exception/attachment-url-not-found.exception';
+import {FileModel} from '../model/file.model';
+import {Post} from '../entity/post.entity';
 
 @Injectable()
 /**
@@ -19,6 +21,26 @@ export class AttachmentService {
     @InjectRepository(PostAttachment)
     private attachmentRepository: Repository<PostAttachment>,
   ) {
+  }
+
+  /**
+   * @public
+   * @param post
+   * @param attachments
+   */
+  public async create(post: Post, attachments: FileModel[]): Promise<PostAttachment[]> {
+    const attachmentEntities: PostAttachment[] = [];
+
+    attachments.forEach(file => {
+      const attachment = this.attachmentRepository.create();
+      attachment.post = post;
+      attachment.url = file.name;
+      attachment.type = file.type;
+
+      attachmentEntities.push(attachment);
+    });
+
+    return this.attachmentRepository.save(attachmentEntities);
   }
 
   /**

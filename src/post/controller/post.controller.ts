@@ -1,4 +1,4 @@
-import {Controller, Get, Param, Req, Post as PostReq, UseGuards} from '@nestjs/common';
+import {Controller, Get, Param, Req, Post as PostReq, UseGuards, Body} from '@nestjs/common';
 import {AttachmentService} from '../service/attachment.service';
 import {APIResponse} from '../../_model/api-response.model';
 import {ResponseService} from '../../_service/response.service';
@@ -6,6 +6,11 @@ import {Post} from '../entity/post.entity';
 import {AuthGuard} from '@nestjs/passport';
 import {PostService} from '../service/post.service';
 import {UploadService} from '../service/upload.service';
+import {PostAttachment} from '../entity/post-attachment.entity';
+import {FileModel} from '../model/file.model';
+import {CategoryService} from '../service/category.service';
+import {User} from '../../user/entity/user.entity';
+import {UserService} from '../../user/service/user.service';
 
 @Controller('post')
 /**
@@ -20,12 +25,16 @@ export class PostController {
    * @param responseService
    * @param postService
    * @param uploadService
+   * @param categoryService
+   * @param userService
    */
   constructor(
     private attachmentService: AttachmentService,
     private responseService: ResponseService,
     private postService: PostService,
-    private uploadService: UploadService
+    private uploadService: UploadService,
+    private categoryService: CategoryService,
+    private userService: UserService
   ) {
   }
 
@@ -44,7 +53,21 @@ export class PostController {
 
   @PostReq()
   @UseGuards(AuthGuard('jwt'))
-  public async upload(@Req() req): Promise<APIResponse<any>> {
-    return this.responseService.build(await this.uploadService.upload(await req.files()));
+  public async upload(
+    @Req() req,
+    @Body() data
+  ): Promise<APIResponse<any>> {
+    //const uploadedFiles: FileModel[] = await this.uploadService.upload(await req.files());
+    const post: Post = await this.postService.create({
+      category: await this.categoryService.get(1),
+      user: await this.userService.findByUsername(req.user.username),
+      title: 'test',
+      description: 'test'
+    });
+
+    //const attachments: PostAttachment[] = await this.attachmentService.create(post, uploadedFiles);
+
+
+    return this.responseService.build({});
   }
 }

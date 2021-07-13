@@ -16,6 +16,9 @@ import {TagRepository} from './repository/tag.repository';
 import {CategoryRepository} from './repository/category.repository';
 import {PostRepository} from './repository/post.repository';
 import {UploadService} from './service/upload.service';
+import {UserService} from '../user/service/user.service';
+import {CacheModule} from '../cache/cache.module';
+import {UserModule} from '../user/user.module';
 
 @Module({
   imports: [
@@ -28,6 +31,7 @@ import {UploadService} from './service/upload.service';
       PostCategory,
       CategoryRepository
     ]),
+    UserModule
   ],
   providers: [PostService, CategoryService, ResponseService, AttachmentService, TagService, UploadService],
   exports: [TypeOrmModule, PostService],

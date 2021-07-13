@@ -1,9 +1,6 @@
 import {Controller, Get, Request, UseGuards} from '@nestjs/common';
-import {UserService} from '../service/user.service';
 import {User} from '../entity/user.entity';
-import {AuthService} from '../service/auth.service';
 import {AuthGuard} from '@nestjs/passport';
-import {PostService} from '../../post/service/post.service';
 import {ResponseService} from '../../_service/response.service';
 import {APIResponse} from '../../_model/api-response.model';
 
@@ -13,7 +10,6 @@ import {APIResponse} from '../../_model/api-response.model';
  */
 export class UserController {
   constructor(
-    private postService: PostService,
     private readonly response: ResponseService
   ) {
   }

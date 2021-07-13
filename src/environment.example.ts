@@ -38,7 +38,7 @@ export const environment = {
   },
 
   upload: {
-    allowedImages: [
+    allowedTypes: [
       'gif', 'jpeg', 'jpg', 'jfif', 'pjpeg', 'pjp', 'png', 'webp'
     ]
   }

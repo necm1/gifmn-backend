@@ -23,6 +23,10 @@ export class PostService {
     this.postRepository.setProvider(cacheManager);
   }
 
+  public async create(post: any): Promise<Post> {
+    return this.postRepository.save(post);
+  }
+
   /**
    * @public
    * @async

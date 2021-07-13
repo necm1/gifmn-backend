@@ -12,6 +12,8 @@ import {Pagination} from 'nestjs-typeorm-paginate/dist/pagination';
 import {paginate} from 'nestjs-typeorm-paginate';
 import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
 import {UpdateResult} from 'typeorm/query-builder/result/UpdateResult';
+import {SaveOptions} from 'typeorm/repository/SaveOptions';
+import {DeepPartial} from 'typeorm/common/DeepPartial';
 
 /**
  * @class Repository
@@ -50,7 +52,7 @@ export abstract class Repository<T> extends TypeRepository<T> {
   public constructor() {
     super();
 
-    this.primaryColumn = this.metadata?.columns?.filter(column => column.isPrimary)[0]?.propertyName;
+    setTimeout(() => this.primaryColumn = this.metadata?.columns?.filter(column => column.isPrimary)[0]?.propertyName, 1000);
   }
 
   /**
@@ -129,14 +131,38 @@ export abstract class Repository<T> extends TypeRepository<T> {
     if (entity) {
       // Delete from Cache
       await this.deleteCache(cacheName);
-
-      // Add to Cache
-      await this.findOne(criteria);
     }
 
-    return entity ?? result;
+    // Add to Cache
+    await this.findOne(criteria);
+
+    return result;
   }
 
+  /**
+   * Save Entity
+   *
+   * @public
+   * @async
+   * @param entity
+   * @param options
+   * @returns J
+   */
+  public async save<J extends DeepPartial<T>>(entity: J, options?: SaveOptions): Promise<J> {
+    const result = await super.save(entity, options);
+
+    const cacheEntity = await this.getCache(result[this.primaryColumn]);
+
+    if (cacheEntity) {
+      // Delete from Cache
+      await this.deleteCache(result[this.primaryColumn]);
+    }
+
+    // Add to Cache
+    await this.findOne({[this.primaryColumn]: result[this.primaryColumn]});
+
+    return result;
+  }
 
   /**
    * @public

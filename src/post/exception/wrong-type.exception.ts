@@ -1,10 +1,10 @@
 import {HttpException} from '@nestjs/common';
 
 /**
- * @class WrongImageTypeException
+ * @class WrongTypeException
  * @extends HttpException
  */
-export class WrongImageTypeException extends HttpException {
+export class WrongTypeException extends HttpException {
   /**
    * WrongImageTypeException Constructor
    *
@@ -12,6 +12,6 @@ export class WrongImageTypeException extends HttpException {
    * @param type
    */
   constructor(type: string) {
-    super(`Could not upload image with type "${type}"`, 400);
+    super(`Could not upload with type "${type}"`, 400);
   }
 }
