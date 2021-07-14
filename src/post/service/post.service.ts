@@ -59,11 +59,12 @@ export class PostService {
    * @public
    * @async
    * @param id
+   * @param force
    * @param options
    * @returns Promise<Pagination<Post>>
    */
-  public async paginateCategoryPosts(id: number, options: IPaginationOptions): Promise<Pagination<Post>> {
-    return this.postRepository.list(options, {
+  public async paginateCategoryPosts(id: number, force = false,options: IPaginationOptions): Promise<Pagination<Post>> {
+    return this.postRepository.list(options, force, {
       where: {
         category: {
           id

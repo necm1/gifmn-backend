@@ -20,7 +20,6 @@ import {PostAttachment} from '../entity/post-attachment.entity';
 import {FileModel} from '../model/file.model';
 import {CategoryService} from '../service/category.service';
 import {UserService} from '../../user/service/user.service';
-import {PostTag} from '../entity/post-tag.entity';
 import {TagService} from '../service/tag.service';
 
 @Controller('post')
@@ -71,8 +70,9 @@ export class PostController {
   ): Promise<APIResponse<any>> {
     const body = req.body;
 
-    if (!body || !body.post) {
-      throw new HttpException('yarram', 400);
+    // @TODO write validator...
+    if (!body || !body.images || !body.post || !body.attachments) {
+      throw new HttpException('Missing images, post or attachments', 400);
     }
 
     const parsedPost = JSON.parse(body.post.value);
@@ -89,10 +89,15 @@ export class PostController {
     const uploadedFiles: FileModel[] = await this.uploadService.upload(!(body.images instanceof Array) ? [body.images] : body.images);
 
     // Create Attachments
-    const attachments: PostAttachment[] = await this.attachmentService.create(post, uploadedFiles, req.body?.attachments ? JSON.parse(req.body?.attachments.value) : {});
+    const attachments: PostAttachment[] = await this.attachmentService.create(post, uploadedFiles, body?.attachments ? JSON.parse(req.body?.attachments.value) : {});
 
     // Create Tags
-    const tags: PostTag[] = await this.tagService.create(req.body.tags?.value ? JSON.parse(req.body?.tags?.value) : {}, post);
+    if (body.tags?.value) {
+      await this.tagService.create(JSON.parse(body.tags.value), post);
+    }
+
+    // Update Cache
+    await this.postService.paginateCategoryPosts(parsedPost.category, true, {page: 1, limit: 10});
 
     return this.responseService.build(await this.postService.get(post.id, true));
   }

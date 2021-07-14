@@ -102,12 +102,13 @@ export abstract class Repository<T> extends TypeRepository<T> {
    */
   public async list(
     options: IPaginationOptions<any>,
-    searchOptions?: FindConditions<T> | FindManyOptions<T>
+    force = false,
+    searchOptions?: FindConditions<T> | FindManyOptions<T> | {force: boolean},
   ): Promise<Pagination<T, any>> {
-    const cacheName = `${JSON.stringify(options)}${searchOptions ? '_' + JSON.stringify(searchOptions) : ''}`;
+    const cacheName = `${searchOptions ? JSON.stringify(searchOptions) : ''}`;
     let entity = await this.getCache(cacheName);
 
-    if (entity) {
+    if (!force && entity) {
       return entity;
     }
 

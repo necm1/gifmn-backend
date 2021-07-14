@@ -6,6 +6,7 @@ import {APIResponse} from '../../_model/api-response.model';
 import {Pagination} from 'nestjs-typeorm-paginate';
 import {Post} from '../entity/post.entity';
 import {PostService} from '../service/post.service';
+import {environment} from '../../environment';
 
 @Controller()
 /**
@@ -65,16 +66,16 @@ export class CategoryController {
   public async posts(
     @Param('id', new ParseIntPipe()) id: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
+    @Query('limit', new DefaultValuePipe(35), ParseIntPipe) limit: number = 35,
   ): Promise<Pagination<Post>> {
     limit = limit > 100 ? 100 : limit;
 
     await this.categoryService.get(id);
 
-    return this.postService.paginateCategoryPosts(id, {
+    return this.postService.paginateCategoryPosts(id, false,{
       page,
       limit,
-      route: `http://127.0.0.1:1337/category/${id}/posts`,
+      route: `${environment.http.host}${environment.http.port !== 80 ? ':' + environment.http.port : ''}/category/${id}/posts`,
     })
   }
 }
