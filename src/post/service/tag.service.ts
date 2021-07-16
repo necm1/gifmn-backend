@@ -56,6 +56,7 @@ export class TagService {
 
     for (const tag of tags) {
       const entity = this.tagRepository.create();
+
       entity.name = tag.name;
       entity.post = post;
 

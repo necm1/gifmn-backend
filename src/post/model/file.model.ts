@@ -1,5 +1,5 @@
 export interface FileModel {
   name: string;
-  type: 'image' | 'video';
+  type: string;
   old: string;
 }

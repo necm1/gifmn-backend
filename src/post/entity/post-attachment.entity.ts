@@ -14,7 +14,7 @@ export class PostAttachment {
   post: Post;
 
   @Column()
-  type: 'image' | 'video';
+  type: string;
 
   @Column()
   url: string;

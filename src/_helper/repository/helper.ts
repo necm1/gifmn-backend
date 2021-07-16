@@ -33,6 +33,12 @@ export abstract class Repository<T> extends TypeRepository<T> {
   protected cacheCollectionPrefix: string;
 
   /**
+   * @protected
+   * @property
+   */
+  protected cacheTTL: number;
+
+  /**
    * @private
    * @property
    */
@@ -215,7 +221,7 @@ export abstract class Repository<T> extends TypeRepository<T> {
     }
 
     return this.$provider.set(`${this.cachePrefix}${key}`, value, {
-      ttl: environment.cache.ttl
+      ttl: this.cacheTTL ?? environment.cache.ttl
     });
   }
 

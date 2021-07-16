@@ -6,7 +6,6 @@ import {AttachmentService} from './attachment.service';
 import {AttachmentUrlNotFoundException} from '../exception/attachment-url-not-found.exception';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as pump from 'pump';
 import {appPath} from '../../main';
 import {FileModel} from '../model/file.model';
 
@@ -26,6 +25,17 @@ export class UploadService {
   ) {
   }
 
+  public async delete(url: string, type: string): Promise<void> {
+    const splittedType = type.split('/');
+
+    const directory = environment.upload.appPath ? path.join(appPath, `${environment.upload.path}`) : environment.upload.path;
+
+    await this.createDirectoryIfNotExists(directory);
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    fs.unlink(path.join(directory, `${url}.${splittedType[1]}`), () => {});
+  }
+
   /**
    * Handle File Upload
    *
@@ -38,7 +48,6 @@ export class UploadService {
     const savedFiles: FileModel[] = [];
 
     for await (const file of files) {
-      console.log(file);
       await this.validateFile(file.fieldname, file.mimetype);
       const name = Math.random().toString(36).substr(2, 7);
 
@@ -59,7 +68,7 @@ export class UploadService {
 
           savedFiles.push({
             name: name,
-            type: await this.getFileType(file.mimetype.split('/')[1]),
+            type: file.mimetype,
             old: file.filename
           });
         }

@@ -17,6 +17,8 @@ import {CategoryRepository} from './repository/category.repository';
 import {PostRepository} from './repository/post.repository';
 import {UploadService} from './service/upload.service';
 import {UserModule} from '../user/user.module';
+import {AttachmentRepository} from './repository/attachment.repository';
+import { AttachmentController } from './controller/attachment.controller';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import {UserModule} from '../user/user.module';
       PostTag,
       TagRepository,
       PostAttachment,
+      AttachmentRepository,
       PostCategory,
       CategoryRepository
     ]),
@@ -33,7 +36,7 @@ import {UserModule} from '../user/user.module';
   ],
   providers: [PostService, CategoryService, ResponseService, AttachmentService, TagService, UploadService],
   exports: [TypeOrmModule, PostService],
-  controllers: [PostController, CategoryController, TagController]
+  controllers: [PostController, CategoryController, TagController, AttachmentController]
 })
 export class PostModule {
 }

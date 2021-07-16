@@ -1,10 +1,10 @@
-import {Injectable} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
+import {CACHE_MANAGER, HttpException, Inject, Injectable} from '@nestjs/common';
 import {PostAttachment} from '../entity/post-attachment.entity';
 import {AttachmentUrlNotFoundException} from '../exception/attachment-url-not-found.exception';
 import {FileModel} from '../model/file.model';
 import {Post} from '../entity/post.entity';
+import {AttachmentRepository} from '../repository/attachment.repository';
+import {TagIdDeleteFailedException} from '../exception/tag-id-delete-failed.exception';
 
 @Injectable()
 /**
@@ -18,9 +18,11 @@ export class AttachmentService {
    * @param attachmentRepository
    */
   constructor(
-    @InjectRepository(PostAttachment)
-    private attachmentRepository: Repository<PostAttachment>,
+    private attachmentRepository: AttachmentRepository,
+    @Inject(CACHE_MANAGER)
+    private cacheManager
   ) {
+    this.attachmentRepository.setProvider(cacheManager);
   }
 
   /**
@@ -36,6 +38,7 @@ export class AttachmentService {
       const description = descriptions?.filter(entry => entry.name === file.old)[0];
 
       const attachment = this.attachmentRepository.create();
+
       attachment.post = post;
       attachment.url = file.name;
       attachment.type = file.type;
@@ -45,10 +48,40 @@ export class AttachmentService {
       attachmentEntities.push(attachment);
 
       // create database entry
-      await this.attachmentRepository.save(attachmentEntities);
+      await this.attachmentRepository.save(attachment);
     }
 
     return attachmentEntities;
+  }
+
+  /**
+   * @public
+   * @async
+   * @param attachments
+   */
+  public async update(attachments: PostAttachment[]): Promise<void> {
+    for (const attach of attachments) {
+      await this.attachmentRepository.update(attach.id, attach);
+    }
+  }
+
+  /**
+   * Delete Attachment By URL
+   *
+   * @public
+   * @async
+   * @param url
+   * @returns Promise<boolean>
+   */
+  public async deleteByUrl(url: string): Promise<boolean> {
+    const result = await this.attachmentRepository.delete({url});
+
+    if (!result.affected || result.affected === 0) {
+      //@todo create AttachmentUrlDeleteFailedException
+      throw new HttpException(`Could not delete Attachment ${url}`, 500);
+    }
+
+    return true;
   }
 
   /**
@@ -58,14 +91,14 @@ export class AttachmentService {
    * @param url
    * @returns Promise<PostAttachment>
    */
-  public async getByURL(url: string): Promise<PostAttachment> {
+  public async getByURL(url: string, force = false, first = true): Promise<PostAttachment> {
     const attachment: PostAttachment = await this.attachmentRepository.findOne({
       where: {url},
       relations: ['post'],
-    });
+    }, {force});
 
-    if (!attachment || attachment?.post.attachments[0].url !== url) {
-      throw new AttachmentUrlNotFoundException(`Could not find attachment with ID: ${url}`);
+    if (!attachment || (first && attachment?.post.attachments[0].url !== url)) {
+      throw new AttachmentUrlNotFoundException(`Could not find attachment with URL: ${url}`);
     }
 
     return attachment;
