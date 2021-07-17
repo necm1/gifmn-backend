@@ -33,14 +33,19 @@ export class AttachmentController {
 
     const entity = await this.attachmentService.getByURL(url, false, false);
 
+    // Make sure we have always one attachment
+    if (entity.post.attachments.length === 1) {
+      throw new HttpException('Post needs at least one attachment', 500);
+    }
+
     // Delete Attachment from Database
     const success = await this.attachmentService.deleteByUrl(url);
 
-    // Update Post in Cache
-    await this.postService.get(entity.post.id, true);
-
     // Delete Local Attachment File
     await this.uploadService.delete(entity.url, entity.type);
+
+    // Update Post in Cache
+    await this.postService.get(entity.post.id, true);
 
     return this.responseService.build<boolean>(success);
   }

@@ -103,4 +103,13 @@ export class PostService {
       }
     });
   }
+
+  /**
+   * @public
+   * @param id
+   * @returns Promise<boolean>
+   */
+  public async delete(id: number): Promise<boolean> {
+    return (await this.postRepository.delete(id)).affected !== 0;
+  }
 }

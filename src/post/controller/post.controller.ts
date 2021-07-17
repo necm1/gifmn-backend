@@ -5,9 +5,7 @@ import {
   Req,
   Post as PostReq,
   UseGuards,
-  Body,
-  UseInterceptors,
-  HttpException, Put
+  HttpException, Put, Body, Delete
 } from '@nestjs/common';
 import {AttachmentService} from '../service/attachment.service';
 import {APIResponse} from '../../_model/api-response.model';
@@ -16,13 +14,11 @@ import {Post} from '../entity/post.entity';
 import {AuthGuard} from '@nestjs/passport';
 import {PostService} from '../service/post.service';
 import {UploadService} from '../service/upload.service';
-import {PostAttachment} from '../entity/post-attachment.entity';
 import {FileModel} from '../model/file.model';
 import {CategoryService} from '../service/category.service';
 import {UserService} from '../../user/service/user.service';
 import {TagService} from '../service/tag.service';
 import {PostTag} from '../entity/post-tag.entity';
-import {TagNotFoundException} from '../exception/tag-not-found.exception';
 
 @Controller('post')
 /**
@@ -50,6 +46,30 @@ export class PostController {
     private userService: UserService,
     private tagService: TagService
   ) {
+  }
+
+  /**
+   * Delete post with all data
+   * and files
+   *
+   * @public
+   * @async
+   * @param id
+   */
+  @Delete(':id')
+  public async delete(@Param('id') id: number) {
+    const entity = await this.postService.get(id);
+
+    for (const value of entity.attachments) {
+      await this.attachmentService.deleteByUrl(value.url);
+      await this.uploadService.delete(value.url, value.type);
+    }
+
+    for (const tag of entity.tags) {
+      await this.tagService.delete(tag.id);
+    }
+
+    return this.responseService.build<boolean>(await this.postService.delete(id));
   }
 
   @Get(':url')
@@ -91,7 +111,7 @@ export class PostController {
     const uploadedFiles: FileModel[] = await this.uploadService.upload(!(body.images instanceof Array) ? [body.images] : body.images);
 
     // Create Attachments
-    const attachments: PostAttachment[] = await this.attachmentService.create(post, uploadedFiles, body?.attachments?.value ? JSON.parse(req.body?.attachments.value) : {});
+    await this.attachmentService.create(post, uploadedFiles, body?.attachments?.value ? JSON.parse(req.body?.attachments.value) : {});
 
     // Create Tags
     if (body.tags?.value) {
@@ -138,7 +158,7 @@ export class PostController {
     }
 
     if (body.attachments?.value) {
-      await this.attachmentService.update(body?.attachments?.value ? JSON.parse(body.attachments?.value).filter(key => key.id && key.url) : {});
+      await this.attachmentService.update(body?.attachments?.value ? JSON.parse(body.attachments?.value).filter(key => key.id) : {});
     }
 
     // Create Tags
