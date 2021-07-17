@@ -26,6 +26,26 @@ export class CategoryService {
   }
 
   /**
+   * @public
+   * @async
+   * @param id
+   * @param name
+   * @returns Promise<boolean>
+   */
+  public async update(id: number, name: string): Promise<boolean> {
+    return (await this.categoryRepository.update(id, {name})).affected === 0;
+  }
+
+  /**
+   * @public
+   * @async
+   * @param id
+   */
+  public async delete(id: number): Promise<boolean> {
+    return (await this.categoryRepository.delete(id)).affected === 0;
+  }
+
+  /**
    * Get All Categories
    *
    * @public
@@ -36,7 +56,7 @@ export class CategoryService {
     const categories: PostCategory[] = await this.categoryRepository.find();
 
     if (categories.length === 0) {
-
+      return [];
     }
 
     return categories;

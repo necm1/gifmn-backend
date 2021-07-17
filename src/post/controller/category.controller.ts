@@ -1,4 +1,4 @@
-import {Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Query} from '@nestjs/common';
+import {Body, Controller, DefaultValuePipe, Delete, Get, Param, ParseIntPipe, Put, Query} from '@nestjs/common';
 import {PostCategory} from '../entity/post-category.entity';
 import {CategoryService} from '../service/category.service';
 import {ResponseService} from '../../_service/response.service';
@@ -51,6 +51,36 @@ export class CategoryController {
    * @returns Promise<APIResponse<PostCategory>>
    */
   public async get(@Param('id', new ParseIntPipe()) id): Promise<APIResponse<PostCategory>> {
+    return this.responseService.build<PostCategory>(await this.categoryService.get(id));
+  }
+
+  /**
+   * Delete Category
+   *
+   * @public
+   * @async
+   * @param id
+   * @returns Promise<APIResponse<boolean>>
+   */
+  @Delete(':id')
+  public async delete(@Param('id') id: number): Promise<APIResponse<boolean>> {
+    await this.categoryService.get(id);
+    return this.responseService.build<boolean>(await this.categoryService.delete(id));
+  }
+
+  /**
+   * Update Category
+   *
+   * @public
+   * @async
+   * @param id
+   * @param name
+   * @returns Promise<APIResponse<PostCategory>>
+   */
+  @Put(':id')
+  public async update(@Param('id') id: number, @Body() name: string): Promise<APIResponse<PostCategory>> {
+    await this.categoryService.get(id);
+    await this.categoryService.update(id, name);
     return this.responseService.build<PostCategory>(await this.categoryService.get(id));
   }
 
