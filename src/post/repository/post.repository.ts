@@ -15,4 +15,10 @@ export class PostRepository extends Repository<Post> {
    * @property
    */
   public readonly cacheCollectionPrefix = 'GIFMN_POST_COLLECTION_';
+
+  /**
+   * @public
+   * @property
+   */
+  public readonly cacheTTL = 180;
 }

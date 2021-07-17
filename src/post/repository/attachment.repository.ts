@@ -15,4 +15,10 @@ export class AttachmentRepository extends Repository<PostAttachment> {
    * @property
    */
   public readonly cacheCollectionPrefix = 'GIFMN_ATTACHMENT_COLLECTION_';
+
+  /**
+   * @public
+   * @property
+   */
+  public readonly cacheTTL = 200;
 }
