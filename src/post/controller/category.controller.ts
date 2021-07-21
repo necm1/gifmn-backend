@@ -176,15 +176,12 @@ export class CategoryController {
   public async posts(
     @Param('id', new ParseIntPipe()) id: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
-    @Query('limit', new DefaultValuePipe(35), ParseIntPipe) limit: number = 35,
   ): Promise<Pagination<Post>> {
-    limit = limit > 100 ? 100 : limit;
-
     await this.categoryService.get(id);
 
-    return this.postService.paginateCategoryPosts(id, false,{
+    return this.postService.paginateCategoryPosts(id, true,{
       page,
-      limit,
+      limit: environment.http.paginationLimit,
       route: `${environment.http.host}${environment.http.port !== 80 ? ':' + environment.http.port : ''}/category/${id}/posts`,
     })
   }

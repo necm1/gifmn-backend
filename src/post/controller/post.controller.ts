@@ -19,6 +19,7 @@ import {CategoryService} from '../service/category.service';
 import {UserService} from '../../user/service/user.service';
 import {TagService} from '../service/tag.service';
 import {PostTag} from '../entity/post-tag.entity';
+import {environment} from '../../environment';
 
 @Controller('post')
 /**
@@ -119,7 +120,7 @@ export class PostController {
     }
 
     // Update Cache
-    await this.postService.paginateCategoryPosts(parsedPost.category, true, {page: 1, limit: 10});
+    await this.postService.paginateCategoryPosts(parsedPost.category, true, {page: 1, limit: environment.http.paginationLimit});
 
     return this.responseService.build(await this.postService.get(post.id, true));
   }
@@ -181,7 +182,7 @@ export class PostController {
     }
 
     // Update Cache
-    await this.postService.paginateCategoryPosts(entity.category.id, true, {page: 1, limit: 10});
+    await this.postService.paginateCategoryPosts(entity.category.id, true, {page: 1, limit: environment.http.paginationLimit});
 
     return this.responseService.build(await this.postService.get(id, true));
   }
