@@ -33,7 +33,7 @@ export class CategoryService {
    * @returns Promise<boolean>
    */
   public async update(id: number, name: string): Promise<boolean> {
-    return (await this.categoryRepository.update(id, {name})).affected === 0;
+    return (await this.categoryRepository.update(id, {name})).affected > 0;
   }
 
   /**
@@ -42,7 +42,7 @@ export class CategoryService {
    * @param id
    */
   public async delete(id: number): Promise<boolean> {
-    return (await this.categoryRepository.delete(id)).affected === 0;
+    return (await this.categoryRepository.delete(id)).affected > 0;
   }
 
   /**
@@ -78,5 +78,20 @@ export class CategoryService {
     }
 
     return category;
+  }
+
+  /**
+   * Create Category
+   *
+   * @public
+   * @async
+   * @param name
+   * @returns Promise<PostCategory>
+   */
+  public async create(name: string): Promise<PostCategory> {
+    const entity = this.categoryRepository.create();
+    entity.name = name;
+
+    return this.categoryRepository.save<PostCategory>(entity);
   }
 }

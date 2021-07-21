@@ -47,6 +47,20 @@ export class PostService {
   }
 
   /**
+   * @public
+   * @async
+   * @param id
+   * @returns Promise<Post[]>
+   */
+  public async getByCategory(id: number): Promise<Post[]> {
+    if (!id) {
+      throw new HttpException('Parameter cannot be undefined', 500);
+    }
+
+    return this.postRepository.find({where: {category: {id}}});
+  }
+
+  /**
    * Create Post
    *
    * @public
