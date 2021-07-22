@@ -61,7 +61,7 @@ export class PostController {
       return;
     }
 
-    const query = (body.query as any).value;
+    const query = (body.query as any).value ?? body.query;
 
     const posts: Post[] = [];
 
