@@ -5,6 +5,8 @@ import {FileModel} from '../model/file.model';
 import {Post} from '../entity/post.entity';
 import {AttachmentRepository} from '../repository/attachment.repository';
 import {TagIdDeleteFailedException} from '../exception/tag-id-delete-failed.exception';
+import {PostTag} from '../entity/post-tag.entity';
+import {Like} from 'typeorm';
 
 @Injectable()
 /**
@@ -16,6 +18,7 @@ export class AttachmentService {
    *
    * @constructor
    * @param attachmentRepository
+   * @param cacheManager
    */
   constructor(
     private attachmentRepository: AttachmentRepository,
@@ -52,6 +55,22 @@ export class AttachmentService {
     }
 
     return attachmentEntities;
+  }
+
+  /**
+   * Search Post
+   *
+   * @public
+   * @async
+   * @param query
+   */
+  public async search(query: string): Promise<PostAttachment[]> {
+    return await this.attachmentRepository.find({
+      relations: ['post'],
+      where: {
+        description: Like(`%${query}%`),
+      }
+    })
   }
 
   /**

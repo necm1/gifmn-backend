@@ -50,6 +50,59 @@ export class PostController {
   }
 
   /**
+   * @public
+   * @async
+   * @param body
+   * @returns Promise<APIResponse<Post[]>>
+   */
+  @PostReq('search')
+  public async search(@Body() body: {query: string}): Promise<APIResponse<Post[]>> {
+    if (!body || !body.query) {
+      return;
+    }
+
+    const query = (body.query as any).value;
+
+    const posts: Post[] = [];
+
+    const postQuery = await this.postService.search(query);
+
+    if (postQuery && postQuery.length > 0) {
+      postQuery.forEach(value => posts.push(value));
+    }
+
+    const attachmentQuery = await this.attachmentService.search(query);
+
+    if (attachmentQuery && attachmentQuery.length > 0) {
+      attachmentQuery.forEach(value => {
+        const entity = posts.filter(entry => entry.id === value.id);
+
+        if (entity && entity[0]) {
+          return;
+        }
+
+        posts.push(value.post);
+      });
+    }
+
+    const tagQuery = await this.tagService.search(query);
+
+    if (tagQuery && tagQuery.length > 0) {
+      tagQuery.forEach(value => {
+        const entity = posts.filter(entry => entry.id === value.id);
+
+        if (entity && entity[0]) {
+          return;
+        }
+
+        posts.push(value.post);
+      })
+    }
+
+    return this.responseService.build<Post[]>(posts);
+  }
+
+  /**
    * Delete post with all data
    * and files
    *
@@ -120,7 +173,10 @@ export class PostController {
     }
 
     // Update Cache
-    await this.postService.paginateCategoryPosts(parsedPost.category, true, {page: 1, limit: environment.http.paginationLimit});
+    await this.postService.paginateCategoryPosts(parsedPost.category, true, {
+      page: 1,
+      limit: environment.http.paginationLimit
+    });
 
     return this.responseService.build(await this.postService.get(post.id, true));
   }
@@ -182,7 +238,10 @@ export class PostController {
     }
 
     // Update Cache
-    await this.postService.paginateCategoryPosts(entity.category.id, true, {page: 1, limit: environment.http.paginationLimit});
+    await this.postService.paginateCategoryPosts(entity.category.id, true, {
+      page: 1,
+      limit: environment.http.paginationLimit
+    });
 
     return this.responseService.build(await this.postService.get(id, true));
   }

@@ -5,6 +5,7 @@ import {TagRepository} from '../repository/tag.repository';
 import {TagNotReplaceableException} from '../exception/tag-not-replaceable.exception';
 import {TagNotFoundException} from '../exception/tag-not-found.exception';
 import {Post} from '../entity/post.entity';
+import {Like} from 'typeorm';
 
 @Injectable()
 /**
@@ -90,6 +91,22 @@ export class TagService {
     if (!entity || entity.affected === 0) {
       throw new TagNotReplaceableException(tag.id);
     }
+  }
+
+  /**
+   * Search Post
+   *
+   * @public
+   * @async
+   * @param query
+   */
+  public async search(query: string): Promise<PostTag[]> {
+    return await this.tagRepository.find({
+      relations: ['post'],
+      where: {
+        name: Like(`%${query}%`),
+      }
+    })
   }
 
   /**

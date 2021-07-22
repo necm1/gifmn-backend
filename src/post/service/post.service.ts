@@ -5,6 +5,7 @@ import {PostRepository} from '../repository/post.repository';
 import {TagNotFoundException} from '../exception/tag-not-found.exception';
 import {PostTag} from '../entity/post-tag.entity';
 import {TagNotReplaceableException} from '../exception/tag-not-replaceable.exception';
+import {Like} from 'typeorm';
 
 @Injectable()
 /**
@@ -16,7 +17,6 @@ export class PostService {
    *
    * @constructor
    * @param postRepository
-   * @param attachmentService
    * @param cacheManager
    */
   constructor(
@@ -44,6 +44,22 @@ export class PostService {
     }
 
     return post;
+  }
+
+  /**
+   * Search Post
+   *
+   * @public
+   * @async
+   * @param query
+   */
+  public async search(query: string): Promise<Post[]> {
+    return await this.postRepository.find({
+      where: [
+        {title: Like(`%${query}%`)},
+        {description: Like(`%${query}%`)},
+      ]
+    })
   }
 
   /**

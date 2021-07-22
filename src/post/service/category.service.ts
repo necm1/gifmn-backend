@@ -1,9 +1,10 @@
 import {CACHE_MANAGER, Inject, Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
+import {Like, Repository} from 'typeorm';
 import {PostCategory} from '../entity/post-category.entity';
 import {CategoryNotFoundException} from '../exception/category-not-found.exception';
 import {CategoryRepository} from '../repository/category.repository';
+import {PostTag} from '../entity/post-tag.entity';
 
 @Injectable()
 /**
